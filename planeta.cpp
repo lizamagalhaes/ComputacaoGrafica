@@ -11,9 +11,7 @@
 static int rotX, rotY, obsZ, year = 0, day = 0;
 int posicaoluz = 0;
 GLfloat Angulo, Aspecto, Larg_Janela, Alt_Janela;
-GLuint TexturaEspaco;
-GLuint TexturaTerra;
-GLuint TexturaLua;
+GLuint TexturaEstrelas, TexturaSol, TexturaTerra, TexturaMarte, TexturaVenus, TexturaJupiter, TexturaNetuno, TexturaUrano, TexturaSaturno, TexturaMercurio;
 GLuint Velocidade = 1;
 
 /* Cria vetores para controle de luzes na cena */
@@ -101,18 +99,38 @@ void carregaTextura(GLuint tex_id, std::string filePath)
 
 void Inicializar(void)
 {
-	glGenTextures(1, &TexturaEspaco);
-	carregaTextura(TexturaEspaco, "textures/estrelas.jpg");
-	glClearColor(0.5, 0.5, 0.5, 1.0);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
 	Iluminar();
-	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glGenTextures(1, &TexturaEstrelas);
+	glGenTextures(1, &TexturaSol);
+	glGenTextures(1, &TexturaMercurio);
+	glGenTextures(1, &TexturaVenus);
 	glGenTextures(1, &TexturaTerra);
-	glGenTextures(1, &TexturaLua);
+	glGenTextures(1, &TexturaMarte);
+	glGenTextures(1, &TexturaJupiter);
+	glGenTextures(1, &TexturaSaturno);
+	glGenTextures(1, &TexturaUrano);
+	glGenTextures(1, &TexturaNetuno);
+	carregaTextura(TexturaSol, "textures/estrelas.jpg");
+	carregaTextura(TexturaSol, "textures/sol.jpg");
+	carregaTextura(TexturaMercurio, "textures/mercurio.jpg");
+	carregaTextura(TexturaVenus, "textures/venus.jpg");
 	carregaTextura(TexturaTerra, "textures/terra.jpg");
-	carregaTextura(TexturaLua, "textures/lua.jpg");
+	carregaTextura(TexturaMarte, "textures/marte.jpg");
+	carregaTextura(TexturaJupiter, "textures/jupiter.jpg");
+	carregaTextura(TexturaSaturno, "textures/saturno.jpg");
+	carregaTextura(TexturaUrano, "textures/urano.jpg");
+	carregaTextura(TexturaNetuno, "textures/netuno.jpg");
 	// Posicionando o observador virtual
 	Angulo = 60;
 	rotX = 20;
@@ -122,17 +140,21 @@ void Inicializar(void)
 
 void Espaco(void)
 {
-	glColor3f(1.0, 1.0, 1.0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex2f(-Larg_Janela, -Alt_Janela);
-	glTexCoord2f(0.0f, 1.0f); glVertex2f(0, Alt_Janela);
-	glTexCoord2f(1.0f, 1.0f); glVertex2f(Larg_Janela, Alt_Janela);
-	glTexCoord2f(1.0f, 0.0f); glVertex2f(Larg_Janela, 0);
-	glEnd();
-	glPopMatrix();
-}
-//Criando esfera personalizada (gluSphere)
+	glClear(GL_COLOR_BUFFER_BIT);
 
+	glBindTexture(GL_TEXTURE_2D, TexturaEstrelas);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex2f(1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex2f(1.0f, 1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, 1.0f);
+	glEnd();
+
+	glutSwapBuffers();
+}
+
+//Criando esfera personalizada (gluSphere)
 void Esfera(int raio, int longitude, int latitude)
 {
 	GLUquadricObj* q = gluNewQuadric();
@@ -147,34 +169,87 @@ void Desenhar(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, TexturaEspaco);
+	glBindTexture(GL_TEXTURE_2D, TexturaEstrelas);
 	//Armazena o estado anterior para rotação da posição da luz 
 	glPushMatrix();
 	glRotated((GLdouble)posicaoluz, 1.0, 0.0, 0.0);
 	glLightfv(GL_LIGHT0, GL_POSITION, posicao);
-	glPopMatrix(); // Posição da Luz 9
+	glPopMatrix(); // Posição da Luz
 
 	//Armazena a situação atual da pilha de matrizes 
-	glPushMatrix();
-	glTranslatef(0.0, 0.0, 2.0);
-	glPushMatrix();
-	glTranslatef(0.0, 0.0, -3.0);
-	glPushMatrix();
-	glRotatef(9, 0.0, 0.0, 1.0);
+	glRotatef(0.1, 0.0, 0.0, 1.0);
 	glPushMatrix();
 	glRotatef((GLfloat)rotY, 1.0, 0.0, 0.0);
 	glRotatef((GLfloat)1.0, 0.0, obsZ, 0.0);
+	glPopMatrix(); // Posição da Luz 
 	//Define a refletância do material
 	glMaterialfv(GL_FRONT, GL_SPECULAR, semespecular);
 	//Define a concentração do brilho
 	glMateriali(GL_FRONT, GL_SHININESS, 20);
-	//Habilita a textura e cria a esfera 
-	glBindTexture(GL_TEXTURE_2D, TexturaTerra);
-	Esfera(3.0, 50, 50);
-	glBindTexture(GL_TEXTURE_2D, TexturaLua);
-	Esfera(0.3, 20, 20);
-	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//Habilita a textura e cria a esfera 1
+	glBindTexture(GL_TEXTURE_2D, TexturaSol);
+	glPushMatrix();
+	glTranslatef(0.0, 0.0, -25.0);
+	Esfera(5, 100, 100);
 	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 2
+	glBindTexture(GL_TEXTURE_2D, TexturaMercurio);
+	glPushMatrix();
+	glTranslatef(0.0, 7.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 3
+	glBindTexture(GL_TEXTURE_2D, TexturaVenus);
+	glPushMatrix();
+	glTranslatef(0.0, 10.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 4
+	glBindTexture(GL_TEXTURE_2D, TexturaTerra);
+	glPushMatrix();
+	glTranslatef(0.0, 13.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 5
+	glBindTexture(GL_TEXTURE_2D, TexturaMarte);
+	glPushMatrix();
+	glTranslatef(0.0, 16.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 6
+	glBindTexture(GL_TEXTURE_2D, TexturaJupiter);
+	glPushMatrix();
+	glTranslatef(0.0, 19.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 7
+	glBindTexture(GL_TEXTURE_2D, TexturaSaturno);
+	glPushMatrix();
+	glTranslatef(0.0, 22.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 8
+	glBindTexture(GL_TEXTURE_2D, TexturaUrano);
+	glPushMatrix();
+	glTranslatef(0.0, 25.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
+	//Habilita a textura e cria a esfera 9
+	glBindTexture(GL_TEXTURE_2D, TexturaNetuno);
+	glPushMatrix();
+	glTranslatef(0.0, 28.0, -25.0);
+	Esfera(1, 50, 50);
+	glPopMatrix();
+
 	glutSwapBuffers();
 }
 
@@ -200,17 +275,16 @@ void UsarTeclado(unsigned char key, int x, int y)
 int main()
 {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(600, 500);
+	glutInitWindowSize(1200, 800);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("Planeta Terra com lua");
+	glutCreateWindow("Sistema Solar");
 	Inicializar();
+	glutDisplayFunc(Espaco);
 	glutDisplayFunc(Desenhar);
 	glutReshapeFunc(AjustarJanela);
 	glutKeyboardFunc(UsarTeclado);
 	glutTimerFunc(10, Timer, 1);
 	glutMainLoop();
 	glDisable(GL_TEXTURE_2D);
-	glDeleteTextures(1, &TexturaTerra);
-	glDeleteTextures(1, &TexturaLua);
 	return 0;
 }
