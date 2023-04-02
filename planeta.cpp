@@ -34,7 +34,6 @@ GLfloat semespecular[4] = { 0.0,0.0,0.0,1.0 };
 void Timer(int value);
 //void Anima_Idle(void);
 void Iluminar();
-//void PosicionaObservador(void);
 void Inicializar(void);
 void Esfera(int raio, int longitude, int latitude);
 void Desenhar(void);
@@ -193,9 +192,9 @@ void Inicializar(void)
 
 void Espaco(void)
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBindTexture(GL_TEXTURE_2D, TexturaEstrelas);
+	glBindTexture(GL_TEXTURE_2D, TexturaTerra);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
@@ -339,7 +338,7 @@ void UsarTeclado(unsigned char key, int x, int y)
 int main()
 {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(1200, 800);
+	glutInitWindowSize(1200, 800); //determina o tamanho da tela
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Sistema Solar");
 	Inicializar();
