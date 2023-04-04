@@ -339,7 +339,7 @@ void exibirImagem1() {
 
 void exibirImagem2(int value) {
 	//segunda
-	imagem("ultima.jpg"); // ou o número do argumento que você deseja passar
+	imagem("menu.jpg"); // ou o número do argumento que você deseja passar
 }
 void exibirImagemUltima(int value) {
 
@@ -351,7 +351,7 @@ void exibirImagemUltima(int value) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	//ultima
-	imagem("inicio.jpg");
+	imagem("ultima.jpg");
 	glutTimerFunc(5000, exit, 0);
 }
 void EncerrarPrograma(int valor) {
@@ -363,7 +363,7 @@ void EncerrarPrograma(int valor) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	// aqui a penultima 
-	imagem("ultima.jpg");
+	imagem("penultima.jpg");
 	glutTimerFunc(5000, exibirImagemUltima, 1);
 }
 
