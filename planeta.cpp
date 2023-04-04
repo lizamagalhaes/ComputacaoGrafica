@@ -8,19 +8,20 @@
 #include <iostream>
 
 
+
 float rotX, rotYTerra, rotYMercurio, rotYJupiter, rotYSol, rotYSaturno, rotYUrano, rotYNetuno, rotYVenus, rotYMarte, obsZ, year = 0, day = 0;
 int posicaoluz = 0;
 GLfloat Angulo, Aspecto, Larg_Janela, Alt_Janela;
 GLuint TexturaEstrelas, TexturaSol, TexturaTerra, TexturaMarte, TexturaVenus, TexturaJupiter, TexturaNetuno, TexturaUrano, TexturaSaturno, TexturaMercurio;
 float VelocidadeSol = 0.5;
-float VelocidadeMercurio = 0.15;
-float VelocidadeVenus = 0.2;
-float VelocidadeTerra = 0.25;
+float VelocidadeMercurio = 0.45;
+float VelocidadeVenus = 0.30;
+float VelocidadeTerra = 0.35;
 float VelocidadeMarte = 0.3;
-float VelocidadeJupiter = 0.35;
-float VelocidadeSaturno = 0.4;
-float VelocidadeUrano = 0.45;
-float VelocidadeNetuno = 0.5;
+float VelocidadeJupiter = 0.25;
+float VelocidadeSaturno = 0.2;
+float VelocidadeUrano = 0.15;
+float VelocidadeNetuno = 0.10;
 
 /* Cria vetores para controle de luzes na cena */
 GLfloat ambiente[] = { 0.2, 0.2, 0.2, 1.0 };
@@ -29,17 +30,10 @@ GLfloat especular[] = { 1.0, 1.0, 1.0, 1.0 };
 GLfloat posicao[] = { 0.0, 3.0, 2.0, 0.0 };
 GLfloat lmodelo_ambiente[] = { 0.2, 0.2, 0.2, 1.0 };
 GLfloat semespecular[4] = { 0.0,0.0,0.0,1.0 };
+bool executarLoop = true;
+bool pausado = false;
 
-//--------------------------------------------------------------
-void Timer(int value);
-//void Anima_Idle(void);
-void Iluminar();
-void Inicializar(void);
-void Esfera(int raio, int longitude, int latitude);
-void Desenhar(void);
-void UsarTeclado(unsigned char key, int x, int y);
-void AjustarJanela(GLsizei w, GLsizei h);
-//--------------------------------------------------------------
+float cameraZ = 70.0f;
 
 
 // Função callback chamada quando o tamanho da janela é alterado 
@@ -54,65 +48,9 @@ void AjustarJanela(GLsizei w, GLsizei h)
 	gluPerspective(60.0, Aspecto, 0.1, 500.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(0.0, 0.0, 70.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(0.0f, 0.0f, cameraZ, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 }
 
-void Timer(int value)
-{
-	rotYSol = (rotYSol + 1 * VelocidadeSol);
-	if (rotYSol >= 360) {
-		rotYSol -= 360;
-	}
-
-
-	rotYMercurio = (rotYMercurio + 1 * VelocidadeMercurio);
-	if (rotYMercurio >= 360) {
-		rotYMercurio -= 360;
-	}
-
-
-	rotYVenus = (rotYVenus + 1 * VelocidadeVenus);
-	if (rotYVenus >= 360) {
-		rotYVenus -= 360;
-	}
-
-
-	rotYTerra = (rotYTerra + 1 * VelocidadeTerra);
-	if (rotYTerra >= 360) {
-		rotYTerra -= 360;
-	}
-
-
-	rotYMarte = (rotYMarte + 1 * VelocidadeMarte);
-	if (rotYMarte >= 360) {
-		rotYMarte -= 360;
-	}
-
-
-	rotYJupiter = (rotYJupiter + 1 * VelocidadeJupiter);
-	if (rotYJupiter >= 360) {
-		rotYJupiter -= 360;
-	}
-
-
-	rotYSaturno = (rotYSaturno + 1 * VelocidadeSaturno);
-	if (rotYSaturno >= 360) {
-		rotYSaturno -= 360;
-	}
-
-
-	rotYUrano = (rotYUrano + 1 * VelocidadeUrano);
-	if (rotYUrano >= 360) {
-		rotYUrano -= 360;
-	}
-
-	rotYNetuno = (rotYNetuno + 1 * VelocidadeNetuno);
-	if (rotYNetuno >= 360) {
-		rotYNetuno -= 360;
-	}
-	glutPostRedisplay();
-	glutTimerFunc(10, Timer, 1);
-}
 
 /* Cria e configura a Luz para a cena */
 void Iluminar()
@@ -190,21 +128,7 @@ void Inicializar(void)
 	carregaTextura(TexturaNetuno, "textures/netuno.jpg");
 }
 
-void Espaco(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBindTexture(GL_TEXTURE_2D, TexturaTerra);
-
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex2f(1.0f, -1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex2f(1.0f, 1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, 1.0f);
-	glEnd();
-
-	glutSwapBuffers();
-}
 
 //Criando esfera personalizada (gluSphere)
 void Esfera(int raio, int longitude, int latitude)
@@ -217,24 +141,27 @@ void Esfera(int raio, int longitude, int latitude)
 	gluDeleteQuadric(q);
 }
 
-void Desenhar(void)
+void Desenhar()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, TexturaEstrelas);
+	AjustarJanela(1200, 800);
 
-	//Armazena o estado anterior para rotação da posição da luz 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+	glEnable(GL_TEXTURE_2D);
+	// Desenhar as estrelas
+	glBindTexture(GL_TEXTURE_2D, TexturaEstrelas);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-500.0f, -200.0f, -200.0f); // coordenada inferior esquerda
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(500.0f, -200.0f, -200.0f); // coordenada inferior direita
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(500.0f, 200.0f, -200.0f); // coordenada superior direita
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-500.0f, 200.0f, -200.0f); // coordenada superior esquerda
+	glEnd();
+
 	glPushMatrix();
 	glRotated((GLdouble)posicaoluz, 1.0, 0.0, 0.0);
 	glLightfv(GL_LIGHT0, GL_POSITION, posicao);
 	glPopMatrix(); // Posição da Luz
-
-	//Armazena a situação atual da pilha de matrizes 
-	//glRotatef(0.1, 0.0, 0.0, 1.0);
-	//glPushMatrix();
-	//glRotatef((GLfloat)rotY, 1.0, 0.0, 0.0);
-	//glRotatef((GLfloat)1.0, 0.0, obsZ, 0.0);
-	//glPopMatrix(); // Posição da Luz 
 
 	//Define a refletância do material
 	glMaterialfv(GL_FRONT, GL_SPECULAR, semespecular);
@@ -314,40 +241,171 @@ void Desenhar(void)
 	glPopMatrix();
 
 	glutSwapBuffers();
+
 }
 
-void UsarTeclado(unsigned char key, int x, int y)
+void Timer(int value)
 {
+	if (!pausado) {
+		rotYMercurio = (rotYMercurio + 1 * VelocidadeMercurio);
+		if (rotYMercurio >= 360) {
+			rotYMercurio -= 360;
+		}
+		rotYSol = (rotYSol + 1 * VelocidadeSol);
+		if (rotYSol >= 360) {
+			rotYSol -= 360;
+		}
+
+		rotYVenus = (rotYVenus + 1 * VelocidadeVenus);
+		if (rotYVenus >= 360) {
+			rotYVenus -= 360;
+		}
+
+
+		rotYTerra = (rotYTerra + 1 * VelocidadeTerra);
+		if (rotYTerra >= 360) {
+			rotYTerra -= 360;
+		}
+
+
+		rotYMarte = (rotYMarte + 1 * VelocidadeMarte);
+		if (rotYMarte >= 360) {
+			rotYMarte -= 360;
+		}
+
+
+		rotYJupiter = (rotYJupiter + 1 * VelocidadeJupiter);
+		if (rotYJupiter >= 360) {
+			rotYJupiter -= 360;
+		}
+
+
+		rotYSaturno = (rotYSaturno + 1 * VelocidadeSaturno);
+		if (rotYSaturno >= 360) {
+			rotYSaturno -= 360;
+		}
+
+
+		rotYUrano = (rotYUrano + 1 * VelocidadeUrano);
+		if (rotYUrano >= 360) {
+			rotYUrano -= 360;
+		}
+
+		rotYNetuno = (rotYNetuno + 1 * VelocidadeNetuno);
+		if (rotYNetuno >= 360) {
+			rotYNetuno -= 360;
+		}
+	}
+	if (!executarLoop) {
+		return;
+	}
+	glutDisplayFunc(Desenhar);
+	glutTimerFunc(10, Timer, 1);
+	glutPostRedisplay();
+}
+
+
+void imagem(const char* nomeArquivo) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	int width, height, channels;
+	unsigned char* image = stbi_load(nomeArquivo, &width, &height, &channels, 0);
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+	glEnable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 0.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 0.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 0.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 0.0f);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+
+	glutSwapBuffers();
+}
+void exibirImagem1() {
+	//primeiro
+	imagem("inicio.jpg"); // ou o número do argumento que você deseja passar
+}
+
+void exibirImagem2(int value) {
+	//segunda
+	imagem("ultima.jpg"); // ou o número do argumento que você deseja passar
+}
+void exibirImagemUltima(int value) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	//ultima
+	imagem("inicio.jpg");
+	glutTimerFunc(5000, exit, 0);
+}
+void EncerrarPrograma(int valor) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	// aqui a penultima 
+	imagem("ultima.jpg");
+	glutTimerFunc(5000, exibirImagemUltima, 1);
+}
+
+void Teclado(unsigned char key, int x, int y) {
 	switch (key) {
-	case 'P':
+	case 27: // ESC
+		executarLoop = false;
+		EncerrarPrograma(0);
+		break;
+	case 'r':
+		pausado = false;
+		break;
 	case 'p':
-		VelocidadeSol = 0;
-		glutPostRedisplay();
+		pausado = true;
 		break;
-	case 'G':
-	case 'g':
-		VelocidadeSol = 1;
-		glutPostRedisplay();
+	case '-':
+		cameraZ -= 1.0;
+		if (cameraZ < 20.0) {
+			cameraZ = 20.0;
+		}
+
 		break;
-	case VK_ESCAPE:
-		exit(0);
+	case '+':
+		cameraZ += 1.0;
+		if (cameraZ > 200.0) {
+			cameraZ = 200.0;
+		}
 		break;
 	}
 }
-
 int main()
 {
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(1200, 800); //determina o tamanho da tela
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Sistema Solar");
 	Inicializar();
-	glutDisplayFunc(Espaco);
-	glutDisplayFunc(Desenhar);
-	glutReshapeFunc(AjustarJanela);
-	glutKeyboardFunc(UsarTeclado);
-	glutTimerFunc(10, Timer, 1);
+	glutKeyboardFunc(Teclado);
+	glutDisplayFunc(exibirImagem1);
+	glutTimerFunc(5000, exibirImagem2, 1);
+	glutTimerFunc(10000, Timer, 1);
 	glutMainLoop();
-	glDisable(GL_TEXTURE_2D);
 	return 0;
 }
